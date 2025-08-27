@@ -7,3 +7,5 @@ while True:
         break   
     else:
         print("Lär dig skriva\n")
+
+# Orkar inte skriva git add/push
