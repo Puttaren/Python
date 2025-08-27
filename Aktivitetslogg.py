@@ -170,4 +170,4 @@ with open(session_fil, mode="a", newline="", encoding="utf-8") as f:
     })
 print(f"Session (en rad) sparad i '{session_fil}'.")
 
-#Testar ändring
+#Testar ändring igen
