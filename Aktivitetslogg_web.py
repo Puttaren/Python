@@ -1,6 +1,5 @@
 import io
 import csv
-import os
 from datetime import datetime
 import smtplib
 from email.message import EmailMessage
@@ -94,37 +93,45 @@ with st.form("grundform"):
     vklass = st.radio("Vapenklass", ["A", "C"], horizontal=True, index=0)
     epost = st.text_input("E-post för kvitto (frivilligt men behövs om du vill maila resultat)", "")
 
-    st.markdown("**Serier (0–50)**")
+    st.markdown("**Serier (1–50)**")
     if "serier" not in st.session_state:
         st.session_state.serier = []
 
-    c1, c2, c3 = st.columns([1,1,1])
-    nytt_poang = c1.number_input("Poäng för nästa serie", min_value=0, max_value=50, step=1, value=0)
-    add = c1.form_submit_button("Lägg till serie")
+    c1, c2, c3 = st.columns([1, 1, 1])
+
+    # Sätt min=1 och startvärde 1 så att Enter kan lägga till direkt
+    nytt_poang = c1.number_input(
+        "Poäng för nästa serie",
+        min_value=1, max_value=50, step=1, value=1, key="nytt_poang"
+    )
+
+    # VIKTIGT: första submit-knappen i formen triggas av Enter
+    add  = c1.form_submit_button("Lägg till serie", type="primary")
     undo = c2.form_submit_button("Ångra senaste")
     clear = c3.form_submit_button("Rensa alla")
 
     if add:
-        if nytt_poang == 0:
-            st.warning("0 används inte här — lägg till faktiska serier (1–50).")
-        else:
-            st.session_state.serier.append(int(nytt_poang))
+        st.session_state.serier.append(int(nytt_poang))
     if undo and st.session_state.serier:
         st.session_state.serier.pop()
     if clear:
         st.session_state.serier = []
 
+    # Valfri extra submit (t.ex. om man ändrat ålder/klass)
     submitted = st.form_submit_button("Uppdatera summering")
 
+# Guldkrav & tabell
 gk = berakna_guldkrav(vklass, int(alder))
 st.info(f"Guldkrav (klass {vklass}): **{gk}**")
 
-# Tabell och summering
 if st.session_state.serier:
-    df = pd.DataFrame({"SerieNr": range(1, len(st.session_state.serier)+1),
-                       "Poäng": st.session_state.serier})
+    df = pd.DataFrame({
+        "SerieNr": range(1, len(st.session_state.serier) + 1),
+        "Poäng": st.session_state.serier
+    })
     df["GuldSerie"] = df["Poäng"] >= gk
     st.dataframe(df, width="stretch", hide_index=True)
+
     total = int(df["Poäng"].sum())
     snitt = float(df["Poäng"].mean())
     guld = int(df["GuldSerie"].sum())
@@ -135,9 +142,20 @@ else:
 st.divider()
 
 # ---------- Export/epost ----------
-disabled = len(st.session_state.serier) == 0 or namn.strip() == "" or plats.strip() == "" or skjutledare.strip() == ""
+disabled = (
+    len(st.session_state.serier) == 0
+    or namn.strip() == ""
+    or plats.strip() == ""
+    or skjutledare.strip() == ""
+)
 
-colA, colB, colC = st.columns([1,1,1])
+colA, colB, _ = st.columns([1, 1, 1])
+
+master_csv = None
+session_csv = None
+datum = ""
+tid = ""
+
 if st.session_state.serier:
     now = datetime.now()
     datum = now.strftime("%Y-%m-%d")
@@ -166,18 +184,21 @@ if st.session_state.serier:
         mime="text/csv",
     )
 
-# Mailknapp längst ned
 st.write("")
 maila = st.button("✉️ Maila resultat", disabled=disabled)
 
 if maila:
     if not epost or "@" not in epost:
         st.error("Fyll i en giltig e-postadress högre upp.")
+    elif master_csv is None or session_csv is None:
+        st.error("Inga serier att skicka ännu.")
     else:
-        body = (f"Namn: {namn}\nPlats: {plats}\nSkjutledare: {skjutledare}\n"
-                f"Ålder: {alder}\nVapenklass: {vklass}\nGuldkrav: {gk}\n"
-                f"Serier: {', '.join(map(str, st.session_state.serier))}\n"
-                f"Datum/Tid: {datum} {tid}\n")
+        body = (
+            f"Namn: {namn}\nPlats: {plats}\nSkjutledare: {skjutledare}\n"
+            f"Ålder: {alder}\nVapenklass: {vklass}\nGuldkrav: {gk}\n"
+            f"Serier: {', '.join(map(str, st.session_state.serier))}\n"
+            f"Datum/Tid: {datum} {tid}\n"
+        )
         result = send_mail(
             to_addr=epost,
             subject=f"Aktivitetslogg {datum} {tid}",
@@ -190,5 +211,8 @@ if maila:
         if result == "OK":
             st.success(f"Skickat till {epost}.")
         else:
-            st.error(f"Kunde inte skicka e-post: {result}\n"
-                     "Kontrollera SMTP-uppgifterna i .streamlit/secrets.toml.")
+            st.error(
+                "Kunde inte skicka e-post: "
+                + result
+                + "\nKontrollera SMTP-uppgifterna i .streamlit/secrets.toml."
+            )
