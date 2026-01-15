@@ -1,3 +1,5 @@
+# En sammanfattning av numpys matrisfunktioner.
+
 import numpy as np
 
 # ===================================
