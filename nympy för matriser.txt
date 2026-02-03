@@ -1,0 +1,253 @@
+import numpy as np
+
+# ===================================
+# SKAPANDE AV MATRISER
+# ===================================
+
+# Från lista
+A = np.array([[1, 2], [3, 4]])
+
+# Nollmatris
+zeros = np.zeros((3, 3))           # 3×3 nollmatris
+
+# Ettmatris
+ones = np.ones((2, 4))              # 2×4 matris med ettor
+
+# Identitetsmatris
+I = np.eye(3)                       # 3×3 identitetsmatris
+I_int = np.eye(3, dtype=int)        # Som heltal
+
+# Diagonal matris
+D = np.diag([1, 2, 3])              # Matris med 1,2,3 på diagonalen
+
+# Slumpmässig matris
+rand_matrix = np.random.rand(2, 3)  # 2×3 med värden 0-1
+rand_int = np.random.randint(0, 10, (2, 3))  # 2×3 med heltal 0-9
+
+# Full matris med samma värde
+full = np.full((2, 3), 7)           # 2×3 fylld med 7
+
+# ===================================
+# ARITMETISKA OPERATIONER
+# ===================================
+
+# Addition
+C = A + B
+
+# Subtraktion
+C = A - B
+
+# Skalär-multiplikation
+C = 3 * A
+C = A * 3
+
+# Element-vis multiplikation (INTE matrismultiplikation!)
+C = A * B                           # Multiplicerar element för element
+
+# Matrismultiplikation (viktigt!)
+C = A @ B                           # Rekommenderad metod (Python 3.5+)
+C = np.matmul(A, B)                 # Alternativ metod
+C = np.dot(A, B)                    # Äldre metod (fungerar också)
+
+# Element-vis division
+C = A / B
+
+# Potens (element-vis)
+C = A ** 2                          # Kvadrerar varje element
+C = np.power(A, 2)                  # Samma sak
+
+# ===================================
+# TRANSPONAT OCH OMVANDLINGAR
+# ===================================
+
+# Transponat
+A_T = A.T
+A_T = np.transpose(A)
+
+# Platta ut till 1D array
+flat = A.flatten()
+
+# Omforma (reshape)
+reshaped = A.reshape(4, 1)          # Ändra till 4×1
+reshaped = A.reshape(-1)            # Platta till 1D (-1 = automatisk storlek)
+
+# ===================================
+# MATRISINFORMATION
+# ===================================
+
+# Dimensioner
+shape = A.shape                     # (antal_rader, antal_kolumner)
+rows = A.shape[0]                   # Antal rader
+cols = A.shape[1]                   # Antal kolumner
+
+# Storlek (totalt antal element)
+size = A.size
+
+# Datatyp
+dtype = A.dtype
+
+# ===================================
+# DETERMINANT, INVERS, RANG
+# ===================================
+
+# Determinant
+det = np.linalg.det(A)
+
+# Invers (A^-1)
+A_inv = np.linalg.inv(A)            # Kräver att A är inverterbar
+
+# Rang
+rank = np.linalg.matrix_rank(A)
+
+# Spår (trace - summa av diagonalen)
+trace = np.trace(A)
+
+# ===================================
+# EGENVÄRDEN OCH EGENVEKTORER
+# ===================================
+
+# Egenvärden och egenvektorer
+eigenvalues, eigenvectors = np.linalg.eig(A)
+
+# Bara egenvärden
+eigenvalues = np.linalg.eigvals(A)
+
+# ===================================
+# NORMER OCH AVSTÅNDSBERÄKNINGAR
+# ===================================
+
+# Norm av matris (Frobenius-norm som standard)
+norm = np.linalg.norm(A)
+
+# Norm av vektor
+v = np.array([3, 4])
+vector_norm = np.linalg.norm(v)     # √(3² + 4²) = 5
+
+# Olika norm-typer
+norm_1 = np.linalg.norm(A, ord=1)   # 1-norm
+norm_2 = np.linalg.norm(A, ord=2)   # 2-norm (största singularvärde)
+norm_inf = np.linalg.norm(A, ord=np.inf)  # Oändlighetsnorm
+
+# ===================================
+# LINJÄRA EKVATIONSSYSTEM (Ax = b)
+# ===================================
+
+# Lös Ax = b
+A = np.array([[3, 2], [1, 4]])
+b = np.array([7, 11])
+x = np.linalg.solve(A, b)           # Löser systemet
+
+# Minsta-kvadrat-lösning (för överbestämda system)
+x, residuals, rank, s = np.linalg.lstsq(A, b, rcond=None)
+
+# ===================================
+# ELEMENT-ÅTKOMST OCH SLICING
+# ===================================
+
+# Enstaka element
+element = A[0, 1]                   # Rad 0, kolumn 1
+
+# Hel rad
+row = A[0, :]                       # Första raden
+
+# Hel kolumn
+col = A[:, 1]                       # Andra kolumnen
+
+# Delmatris
+submatrix = A[0:2, 1:3]             # Rader 0-1, kolumner 1-2
+
+# ===================================
+# STATISTIK OCH AGGREGERING
+# ===================================
+
+# Summa
+total = np.sum(A)                   # Summa av alla element
+row_sums = np.sum(A, axis=1)        # Summa per rad
+col_sums = np.sum(A, axis=0)        # Summa per kolumn
+
+# Medelvärde
+mean = np.mean(A)
+row_means = np.mean(A, axis=1)
+
+# Min/Max
+minimum = np.min(A)
+maximum = np.max(A)
+min_idx = np.argmin(A)              # Index för minsta värde
+max_idx = np.argmax(A)              # Index för största värde
+
+# Standardavvikelse
+std = np.std(A)
+
+# ===================================
+# JÄMFÖRELSER
+# ===================================
+
+# Elementvis jämförelse
+comparison = A > 5                  # Boolean array
+comparison = A == B
+
+# Matrisjämförelse (exakt lika)
+is_equal = np.array_equal(A, B)
+
+# Nästan lika (med tolerans för flyttal)
+is_close = np.allclose(A, B, rtol=1e-5, atol=1e-8)
+
+# ===================================
+# KONKATENERING OCH STACKING
+# ===================================
+
+# Vertikal stacking (lägg rad under rad)
+C = np.vstack([A, B])
+C = np.concatenate([A, B], axis=0)
+
+# Horisontell stacking (lägg kolumn bredvid kolumn)
+C = np.hstack([A, B])
+C = np.concatenate([A, B], axis=1)
+
+# ===================================
+# SPECIALFUNKTIONER
+# ===================================
+
+# Diagonalen av en matris
+diag = np.diag(A)                   # Extrahera diagonal
+
+# Övre/nedre triangulär matris
+upper = np.triu(A)                  # Övre triangulär
+lower = np.tril(A)                  # Nedre triangulär
+
+# QR-faktorisering
+Q, R = np.linalg.qr(A)
+
+# SVD (Singular Value Decomposition)
+U, s, Vh = np.linalg.svd(A)
+
+# Cholesky-faktorisering (för symmetrisk positiv definit matris)
+L = np.linalg.cholesky(A)
+
+# Kronecker-produkt
+kron = np.kron(A, B)
+
+# ===================================
+# KOPIERA OCH KONVERTERA
+# ===================================
+
+# Kopiera matris (djup kopia)
+A_copy = A.copy()                   # Ändring påverkar inte originalet
+
+# Konvertera till lista
+A_list = A.tolist()
+
+# Konvertera datatyp
+A_int = A.astype(int)
+A_float = A.astype(float)
+
+# ===================================
+# SPECIALVÄRDEN
+# ===================================
+
+# Kolla efter NaN eller Inf
+has_nan = np.isnan(A).any()
+has_inf = np.isinf(A).any()
+
+# Ersätt NaN
+A_clean = np.nan_to_num(A)          # NaN → 0, Inf → stort tal
